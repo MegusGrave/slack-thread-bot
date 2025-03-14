@@ -1,0 +1,68 @@
+name: Package and Release Dify Plugin
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+  
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+      
+      - name: Extract version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          fi
+      
+      - name: Create Dify package
+        run: |
+          # Read plugin name from manifest.yaml
+          PLUGIN_NAME=$(python -c "import yaml; print(yaml.safe_load(open('manifest.yaml'))['name'])")
+          echo "Plugin name: $PLUGIN_NAME"
+          echo "Version: $VERSION"
+          
+          # Create the difypkg file
+          PACKAGE_NAME="${PLUGIN_NAME}-${VERSION#v}.difypkg"
+          echo "Creating package: $PACKAGE_NAME"
+          
+          # Zip all files except .git and GitHub workflows
+          zip -r "$PACKAGE_NAME" . -x "*.git*" ".github/*" "*.difypkg"
+          
+          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
+      
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: Release ${{ env.VERSION }}
+          draft: false
+          prerelease: false
+          files: ${{ env.PACKAGE_NAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
