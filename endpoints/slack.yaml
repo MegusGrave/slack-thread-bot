@@ -2,4 +2,4 @@ path: "/"
 method: "POST"
 extra:
   python:
-    source: "endpoints/slack.py"
+    source: "slack.py"
