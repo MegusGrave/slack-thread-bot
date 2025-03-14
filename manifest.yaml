@@ -1,6 +1,6 @@
 version: 0.0.3
 type: plugin
-author: YourName
+author: MegusGrave
 name: slack-thread-bot
 label:
   en_US: Slack Thread Bot
@@ -24,7 +24,7 @@ resource:
       size: 1048576
 plugins:
   endpoints:
-    - slack.yaml
+    - group/slack.yaml
 meta:
   version: 0.0.1
   arch:

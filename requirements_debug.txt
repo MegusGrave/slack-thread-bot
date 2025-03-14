@@ -1,0 +1,2 @@
+Werkzeug==3.0.3
+slack-sdk==3.34.0
