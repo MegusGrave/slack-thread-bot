@@ -1,0 +1,23 @@
+settings:
+  - name: bot_token
+    type: secret-input
+    required: true
+    label:
+      en_US: Bot Token
+    placeholder:
+      en_US: Please input your Bot Token
+  - name: allow_retry
+    type: boolean
+    required: false
+    label:
+      en_US: Allow Retry
+    default: false
+  - name: app
+    type: app-selector
+    required: true
+    label:
+      en_US: App
+    placeholder:
+      en_US: the app you want to use to answer Slack messages
+endpoints:
+  - endpoints/slack.yaml
